@@ -35,8 +35,8 @@ class ObjectDict(dict):
   description='Train Babyweight model from scratch'
 )
 def preprocess_train_and_deploy(
-    project='ai-analytics-solutions',
-    bucket='ai-analytics-solutions-kfpdemo',
+    project='$PROJECT_ID',
+    bucket='$PROJECT_ID-kfpdemo',
     start_year='2000'
 ):
     """End-to-end Pipeline to train and deploy babyweight model"""
@@ -44,7 +44,7 @@ def preprocess_train_and_deploy(
     preprocess = dsl.ContainerOp(
           name='preprocess',
           # image needs to be a compile-time string
-          image='gcr.io/ai-analytics-solutions/babyweight-pipeline-bqtocsv:latest',
+          image='gcr.io/$PROJECT_ID/babyweight-pipeline-bqtocsv:latest',
           arguments=[
             '--project', project,
             '--mode', 'cloud',
@@ -59,7 +59,7 @@ def preprocess_train_and_deploy(
     hparam_train = dsl.ContainerOp(
         name='hypertrain',
         # image needs to be a compile-time string
-        image='gcr.io/ai-analytics-solutions/babyweight-pipeline-hypertrain:latest',
+        image='gcr.io/$PROJECT_ID/babyweight-pipeline-hypertrain:latest',
         arguments=[
             preprocess.outputs['bucket']
         ],
@@ -73,7 +73,7 @@ def preprocess_train_and_deploy(
     deploy_app = dsl.ContainerOp(
           name='deployapp',
           # image needs to be a compile-time string
-          image='gcr.io/ai-analytics-solutions/babyweight-pipeline-deployapp:latest',
+          image='gcr.io/$PROJECT_ID/babyweight-pipeline-deployapp:latest',
           arguments=[
             deploy_cmle.outputs['model'],
             deploy_cmle.outputs['version']
@@ -83,7 +83,7 @@ def preprocess_train_and_deploy(
           }
         ).apply(use_gcp_secret('user-gcp-sa'))
 
-    # application URL will be https://ai-analytics-solutions.appspot.com/
+    # application URL will be https://$PROJECT_ID.appspot.com/
 
 
 @dsl.pipeline(
@@ -91,8 +91,8 @@ def preprocess_train_and_deploy(
   description='Train Babyweight model on current data in GCS'
 )
 def train_and_deploy(
-    project='ai-analytics-solutions',
-    bucket='ai-analytics-solutions-kfpdemo',
+    project='$PROJECT_ID',
+    bucket='$PROJECT_ID-kfpdemo',
     start_year='2000'
 ):
     """Pipeline to retrain and deploy babyweight ML model only"""
@@ -113,7 +113,7 @@ def train_and_deploy(
     # actual pipeline we want to run
     deploy_cmle = train_and_deploy_helper(preprocess, hparam_train)
     
-    # no need to redeploy web app at https://ai-analytics-solutions.appspot.com/
+    # no need to redeploy web app at https://$PROJECT_ID.appspot.com/
     
     
     
@@ -124,7 +124,7 @@ def train_and_deploy_helper(preprocess, hparam_train):
     train_tuned = dsl.ContainerOp(
       name='traintuned',
       # image needs to be a compile-time string
-      image='gcr.io/ai-analytics-solutions/babyweight-pipeline-traintuned:latest',
+      image='gcr.io/$PROJECT_ID/babyweight-pipeline-traintuned:latest',
       arguments=[
         hparam_train.outputs['jobname'],
         preprocess.outputs['bucket']
@@ -138,7 +138,7 @@ def train_and_deploy_helper(preprocess, hparam_train):
     deploy_cmle = dsl.ContainerOp(
       name='deploycmle',
       # image needs to be a compile-time string
-      image='gcr.io/ai-analytics-solutions/babyweight-pipeline-deploycmle:latest',
+      image='gcr.io/$PROJECT_ID/babyweight-pipeline-deploycmle:latest',
       arguments=[
         train_tuned.outputs['train'],  # modeldir
         'babyweight',

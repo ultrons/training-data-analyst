@@ -1,7 +1,7 @@
 #!/bin/bash
 
 # CHANGE
-BUCKET="ai-analytics-solutions-kfpdemo"
+BUCKET="$PROJECT_ID-kfpdemo"
 
 # test cloud function
 echo "Creating new file in gs://${BUCKET}"
