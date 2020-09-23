@@ -26,7 +26,7 @@ ZONE=$2
 CLUSTER=$3
 NAMESPACE=$4
 
-
+# Test comment
 # See: https://github.com/kubeflow/pipelines/blob/master/manifests/gcp_marketplace/guide.md#gcp-service-account-credentials
 
 gcloud container clusters get-credentials "$CLUSTER" --zone "$ZONE" --project "$PROJECT_ID"
