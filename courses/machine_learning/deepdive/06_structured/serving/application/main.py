@@ -31,7 +31,8 @@ from google.appengine.api import app_identity
 
 credentials = GoogleCredentials.get_application_default()
 api = discovery.build('ml', 'v1', credentials=credentials)
-project = app_identity.get_application_id()
+project = "pytorch-tpu-nfs"
+#project = app_identity.get_application_id()
 model_name = os.getenv('MODEL_NAME', 'babyweight')
 version_name = os.getenv('VERSION_NAME', 'dnn')
 
@@ -43,7 +44,10 @@ def get_prediction(features):
   input_data = {'instances': [features]}
   parent = 'projects/%s/models/%s/versions/%s' % (project, model_name, version_name)
   prediction = api.projects().predict(body=input_data, name=parent).execute()
-  return prediction['predictions'][0]['babyweight'][0]
+  print("DEBG:", prediction)
+  print("DEBG2", prediction['predictions'][0]['predictions'][0])
+  return prediction['predictions'][0]['predictions'][0]
+
 
 
 @app.route('/')
@@ -83,4 +87,7 @@ def predict():
   features['gestation_weeks'] = float(data['gestation_weeks'])
 
   prediction = get_prediction(features)
-  return jsonify({'result': '{:.2f} lbs.'.format(prediction)})
+  print("DEBG3", prediction)
+  #print("DEBG4", jsonify({'result': '{:.2f} lbs.'.format(prediction)}))
+  #return jsonify({'result': '{:.2f} lbs.'.format(prediction)})
+  return json.dumps({'result': '{:.2f} lbs.'.format(prediction)})
