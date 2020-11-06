@@ -36,7 +36,7 @@ gcloud ai-platform jobs submit training $JOBNAME \
   --bucket=${BUCKET} \
   --output_dir=${OUTDIR} \
   --eval_steps=10 \
-  --train_examples=100
+  --train_examples=1000
 
 
 # note --stream-logs above so that we wait for job to finish
